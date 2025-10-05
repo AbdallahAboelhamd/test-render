@@ -7,22 +7,20 @@ WORKDIR /app
 # ننسخ ملفات الباكدجات أولًا
 COPY package*.json ./
 
-# نثبت الباكدجات كمستخدم root (علشان عنده صلاحيات كاملة)
+# نثبت الباكدجات
 RUN npm install
 
-# ننسخ بقية ملفات المشروع
+# ننسخ بقية الملفات
 COPY . .
 
-# ندي صلاحيات كاملة لكل الملفات داخل المجلد /app
-# الهدف إن المستخدم العادي يقدر يكتب ويقرأ الملفات
-RUN chmod -R 777 /app
+# نبني نسخة production من التطبيق
+RUN npm run build
 
-# نضيف مستخدم جديد ونستخدمه لتشغيل التطبيق
-RUN addgroup app && adduser -S -G app app
-USER app
+# نثبت أداة serve لتشغيل الملفات الثابتة (Static files)
+RUN npm install -g serve
 
-# نفتح البورت اللي Vite بيستخدمه
-EXPOSE 5173
+# نفتح البورت اللي هتستخدمه Render (Render بيفتح 10000)
+EXPOSE 10000
 
-# نحدد الأمر اللي يشغل التطبيق
-CMD ["npm", "run", "dev"]
+# نشغل التطبيق باستخدام serve
+CMD ["serve", "-s", "dist", "-l", "10000"]
